@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{# ================================================================== #}
+{# SEO-ЗАДАНИЕ: динамические title и description события, например:   #}
+{#   «{{ poster.title }}: квиз по теме «{{ poster.topic }}» — {{ poster.date|date:"j E" }} | Подземка» #}
+{#                                                                      #}
+{# SEO-ЗАДАНИЕ (Schema.org Event, JSON-LD) — положите в extra_head:     #}
+{#   "@type": "Event", "name", "startDate" (ISO 8601, с временем и      #}
+{#   часовым поясом +09:00 — это Чита!), "eventStatus",                 #}
+{#   "eventAttendanceMode": OfflineEventAttendanceMode,                  #}
+{#   "location": {"@type": "Place", "name", "address": PostalAddress}, #}
+{#   "image", "description", "organizer".                               #}
+{# Проверьте в https://validator.schema.org/                            #}
+{# ================================================================== #}
+
+{% block breadcrumbs %}
+  <nav class="container breadcrumbs mono" aria-label="Хлебные крошки">
+    <a href="{% url 'venue:home' %}">Главная</a> <span>/</span>
+    <a href="{% url 'venue:poster_list' %}">Афиша</a> <span>/</span>
+    <span>{{ poster.title }}</span>
+  </nav>
+{% endblock %}
+
+{% block content %}
+<section class="section section--tight">
+  <div class="container poster">
+    <div class="poster__img">
+      {% if poster.schedule %}
+        <span class="date-badge date-badge--regular"><b>{% if poster.time %}{{ poster.time|time:"H:i" }}{% else %}∞{% endif %}</b><span>{{ poster.schedule }}</span></span>
+      {% else %}
+        <span class="date-badge"><b>{{ poster.date|date:"d" }}</b><span>{{ poster.date|date:"b" }}</span></span>
+      {% endif %}
+      {# SEO-ЗАДАНИЕ: картинка весит ~2,5 МБ. Сожмите, добавьте alt/width/height. #}
+      {% if poster.image %}<img src="{% static poster.image %}">{% endif %}
+    </div>
+
+    <div class="poster__info">
+      {% if is_past %}<p class="poster__past mono">Событие уже прошло</p>{% endif %}
+      {% if poster.topic %}<p class="mono" style="color: var(--neon)">Тема: {{ poster.topic }}</p>{% endif %}
+      <h1 class="poster__title">{{ poster.title }}</h1>
+      <p class="hall-hero__lead">{{ poster.short_description }}</p>
+
+      <dl class="poster__facts">
+        {% if poster.schedule %}
+          <div><dt class="mono">Когда</dt><dd>{{ poster.schedule }}, начиная с {{ poster.date|date:"j E Y" }}</dd></div>
+        {% else %}
+          <div><dt class="mono">Дата</dt><dd>{{ poster.date|date:"j E Y, l" }}</dd></div>
+        {% endif %}
+        <div><dt class="mono">Начало</dt><dd>{% if poster.time %}{{ poster.time|time:"H:i" }}{% else %}Время уточняйте по телефону <a href="tel:{{ site.phone_raw }}">{{ site.phone }}</a>{% endif %}</dd></div>
+        {% if poster.topic %}<div><dt class="mono">Тема</dt><dd>{{ poster.topic }}</dd></div>{% endif %}
+        {% if poster.organizer %}<div><dt class="mono">Организатор</dt><dd>{{ poster.organizer }}</dd></div>{% endif %}
+        <div><dt class="mono">Место</dt><dd>{{ site.name }}, {{ site.address }}</dd></div>
+      </dl>
+
+      <div class="poster__text">{{ poster.description|linebreaks }}</div>
+
+      {% if not is_past %}
+        <a href="{% url 'venue:booking' %}?comment={{ poster.title|urlencode }}{% if not poster.schedule %}%2C%20{{ poster.date|date:'d.m.Y'|urlencode }}{% endif %}" class="btn btn--neon">Забронировать стол</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

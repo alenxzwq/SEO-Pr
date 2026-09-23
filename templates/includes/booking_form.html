@@ -1,0 +1,15 @@
+<form method="post" action="{% url 'venue:booking' %}" class="booking-form">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert--error">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="booking-form__grid">
+    {% for field in form %}
+      <label class="field{% if field.name == 'comment' %} field--wide{% endif %}{% if field.errors %} field--error{% endif %}">
+        <span class="field__label mono">{{ field.label }}</span>
+        {{ field }}
+        {% for e in field.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
+      </label>
+    {% endfor %}
+  </div>
+  <button type="submit" class="btn btn--neon btn--block">Отправить заявку</button>
+  <p class="booking-form__note muted">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
+</form>

@@ -1,0 +1,26 @@
+{% load static %}
+<header class="header">
+  <div class="container header__inner">
+    <a href="{% url 'venue:home' %}" class="logo">
+      {# SEO-ПОДСКАЗКА: логотип — это ссылка на главную. Нужен ли ему текстовый #}
+      {# эквивалент для поисковика/скринридера, если бы здесь была картинка? #}
+      <span class="logo__m">П</span>
+      <span class="logo__text">Подземка<small>banquet · loft · underground</small></span>
+    </a>
+
+    <button class="burger" type="button" aria-label="Открыть меню" aria-expanded="false" data-burger>
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" data-nav>
+      <a href="{% url 'venue:hall_list' %}" class="nav__link">Залы</a>
+      <a href="{% url 'venue:poster_list' %}" class="nav__link">Афиша</a>
+      <a href="{% url 'venue:events' %}" class="nav__link">Мероприятия</a>
+      <a href="{% url 'venue:menu' %}" class="nav__link">Меню</a>
+      <a href="{% url 'venue:gallery' %}" class="nav__link">Галерея</a>
+      <a href="{% url 'venue:contacts' %}" class="nav__link">Контакты</a>
+      <a href="tel:{{ site.phone_raw }}" class="nav__phone">{{ site.phone }}</a>
+      <a href="{% url 'venue:booking' %}" class="btn btn--neon btn--sm">Забронировать</a>
+    </nav>
+  </div>
+</header>

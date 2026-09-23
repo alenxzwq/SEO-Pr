@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{# SEO-ЗАДАНИЕ: служебная страница с формой. Решите, нужна ли она в индексе.  #}
+{# Если нет — закройте через <meta name="robots" content="noindex, follow">.    #}
+{# Почему в этом случае лучше noindex, а не Disallow в robots.txt?             #}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="mono muted">Билет в один конец</p>
+    <h1 class="page-head__title">Бронирование</h1>
+    <p class="page-head__lead">Расскажите о мероприятии — подберём зал, меню и проведём экскурсию по площадке.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container narrow">
+    {% include "includes/booking_form.html" %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% load static %}<!DOCTYPE html>
+{# SEO-ЗАДАНИЕ: язык страницы. Какой атрибут lang должен быть у сайта на русском? #}
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {# ================================================================== #}
+  {# SEO-ЗАДАНИЕ (title): сейчас у ВСЕХ страниц одинаковый заголовок.     #}
+  {# ПОДСКАЗКА: каждый шаблон-наследник должен переопределять блок title. #}
+  {# Шаблон хорошего title: «Главный ключ — уточнение | Подземка»,        #}
+  {# длина ~50-65 символов, уникален для каждой страницы.                 #}
+  {# ================================================================== #}
+  <title>{% block title %}Подземка{% endblock %}</title>
+
+  {# SEO-ЗАДАНИЕ (description): мета-описания нет вообще.                 #}
+  {# ПОДСКАЗКА: <meta name="description" content="...">, 120-160 символов, #}
+  {# уникально для каждой страницы. Заведите блок {% block description %}. #}
+
+  {# SEO-ЗАДАНИЕ (canonical): добавьте <link rel="canonical" href="...">  #}
+  {# ПОДСКАЗКА: абсолютный URL можно получить через                         #}
+  {# {{ request.scheme }}://{{ request.get_host }}{{ request.path }}        #}
+
+  {# SEO-ЗАДАНИЕ (Open Graph / Twitter Cards): при отправке ссылки в       #}
+  {# Telegram/VK сейчас нет красивого превью. Нужны og:title, og:description,#}
+  {# og:image (абсолютный URL, 1200×630), og:url, og:type, og:site_name,   #}
+  {# og:locale, а также twitter:card.                                       #}
+
+  {# SEO-ЗАДАНИЕ (robots): как запретить индексацию отдельной страницы?     #}
+  {# ПОДСКАЗКА: заведите {% block robots %}{% endblock %} и переопределите  #}
+  {# его на служебных страницах: <meta name="robots" content="noindex, follow"> #}
+
+  {# SEO-ЗАДАНИЕ (favicon): у сайта нет иконки. Нужны favicon.ico / .svg,  #}
+  {# apple-touch-icon и (по желанию) site.webmanifest + theme-color.        #}
+
+  {# SEO-ЗАДАНИЕ (верификация): сюда же добавляются мета-теги подтверждения #}
+  {# прав в Яндекс.Вебмастере и Google Search Console.                     #}
+
+  {# ПОДСКАЗКА (скорость): preconnect к Google Fonts уже есть — это хорошо. #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  {# SEO-ЗАДАНИЕ (микроразметка): сюда удобно положить JSON-LD Schema.org   #}
+  {# для организации (EventVenue / LocalBusiness): название, адрес, телефон,#}
+  {# часы работы, координаты, ссылки на соцсети (sameAs).                    #}
+  {# Данные уже есть в шаблоне: {{ site.name }}, {{ site.address }} и т.д.   #}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="noise" aria-hidden="true"></div>
+
+  {% include "includes/header.html" %}
+
+  <main id="main">
+    {% if messages %}
+      <div class="container">
+        {% for message in messages %}
+          <div class="alert alert--{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {# SEO-ЗАДАНИЕ (хлебные крошки): на внутренних страницах нет навигационной #}
+    {# цепочки «Главная → Залы → Депо». Сделайте блок breadcrumbs и разметьте  #}
+    {# его через Schema.org BreadcrumbList.                                    #}
+    {% block breadcrumbs %}{% endblock %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "includes/footer.html" %}
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+
+  {# SEO-ЗАДАНИЕ (аналитика): подключите Яндекс.Метрику (с целью на отправку формы) #}
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{# SEO-ЗАДАНИЕ: title/description. Добавьте в них город и адрес — люди ищут «банкетный зал Чита», «банкет в центре Читы». #}
+{# SEO-ЗАДАНИЕ (локальное SEO): JSON-LD с PostalAddress, GeoCoordinates, openingHoursSpecification. #}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="mono muted">Как добраться</p>
+    <h1 class="page-head__title">Контакты</h1>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container contacts">
+    <div class="contacts__info">
+      <dl class="contacts__list">
+        <div><dt class="mono">Адрес</dt><dd>{{ site.address }}</dd></div>
+        <div><dt class="mono">Где это</dt><dd><span class="metro-badge">П</span> {{ site.city }}, {{ site.region }}</dd></div>
+        <div><dt class="mono">Телефон</dt><dd><a href="tel:{{ site.phone_raw }}">{{ site.phone }}</a></dd></div>
+        <div><dt class="mono">E-mail</dt><dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd></div>
+        <div><dt class="mono">Время работы</dt><dd>{{ site.hours }}</dd></div>
+        <div><dt class="mono">Реквизиты</dt><dd>{{ site.legal_name }}</dd></div>
+      </dl>
+      <a href="{% url 'venue:booking' %}" class="btn btn--neon">Записаться на экскурсию</a>
+    </div>
+
+    <div class="contacts__map">
+      {# Виджет Яндекс.Карт (конструктор карт). #}
+      {# SEO-ЗАДАНИЕ (скорость): iframe карты тяжёлый и грузится сразу, даже если #}
+      {# до карты никто не долистал. Добавьте loading="lazy" и title у iframe     #}
+      {# (title нужен и для доступности). Сравните Lighthouse до и после.         #}
+      {# SEO-ВОПРОС: Яндекс добавил над картой две ссылки. Почему их нельзя       #}
+      {# прятать через CSS (opacity: 0, display: none)?                          #}
+      <div class="map-embed">
+        <a href="https://yandex.ru/maps/68/chita/?utm_medium=mapframe&utm_source=maps" class="map-embed__credit">Чита</a>
+        <a href="https://yandex.ru/maps/68/chita/house/ulitsa_kurnatovskogo_17/ZUgFaANpSkUCWEJvYWJxcnlmZwg=/?ll=113.493054%2C52.035530&utm_medium=mapframe&utm_source=maps&z=16" class="map-embed__credit map-embed__credit--2">Улица Курнатовского, 17 на карте Читы — Яндекс Карты</a>
+        <iframe src="https://yandex.ru/map-widget/v1/?ll=113.493054%2C52.035530&mode=whatshere&whatshere%5Bpoint%5D=113.493054%2C52.035530&whatshere%5Bzoom%5D=17&z=16" allowfullscreen="true"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

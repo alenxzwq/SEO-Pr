@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{# SEO-ЗАДАНИЕ: title/description. Например: «Афиша событий в Чите: квизы и вечеринки в лофте | Подземка» #}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="mono muted">События</p>
+    <h1 class="page-head__title">Афиша</h1>
+    <p class="page-head__lead">Квизы, вечеринки и концерты в Подземке. Приходите сами и зовите друзей.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    {% if posters %}
+      <div class="posters">
+        {% for p in posters %}{% include "includes/poster_card.html" %}{% endfor %}
+      </div>
+    {% else %}
+      {# SEO-ВОПРОС: пустая страница без контента — «тонкий» контент. Что сюда добавить? #}
+      <p class="muted">Скоро здесь появятся новые события. Следите за нами в соцсетях!</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

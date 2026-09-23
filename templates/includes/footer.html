@@ -1,0 +1,58 @@
+<footer class="footer">
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      {% for i in "1234" %}
+        <span>Осторожно, двери закрываются</span><span>★</span>
+        <span>Курнатовского, 17 · вход со двора</span><span>★</span>
+        <span>Банкеты · свадьбы · корпоративы</span><span>★</span>
+        {% if promo %}<span>Выпускной: −{{ promo.discount }}% на тамаду до {{ promo.until_human }}</span><span>★</span>{% endif %}
+        <span>Знаешь пароль? −{{ site.bar_discount }}% в баре</span><span>★</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="container footer__grid">
+    <div>
+      {# SEO-ЗАДАНИЕ: в подвале НЕ должно быть заголовков h1/h2 «для веса». #}
+      {# Здесь используется div — это правильно. Проверьте остальные шаблоны! #}
+      <div class="footer__logo">Подземка</div>
+      <p class="muted">{{ site.tagline }}.</p>
+    </div>
+
+    <div>
+      <div class="footer__title">Станции</div>
+      <ul class="footer__list">
+        {% for hall in nav_halls %}
+          <li><a href="{{ hall.get_absolute_url }}"><i class="dot" style="--c: {{ hall.line_color }}"></i>{{ hall.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer__title">Контакты</div>
+      {# SEO-ПОДСКАЗКА: NAP (Name, Address, Phone) должен совпадать на всех #}
+      {# страницах и в картах (Яндекс.Бизнес, 2ГИС). Можно разметить         #}
+      {# микроданными или вынести в JSON-LD.                                  #}
+      <ul class="footer__list">
+        <li><a href="tel:{{ site.phone_raw }}">{{ site.phone }}</a></li>
+        <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
+        <li class="muted">{{ site.address }}</li>
+        <li class="muted">{{ site.hours }}</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer__title">Соцсети</div>
+      <ul class="footer__list">
+        {# SEO-ВОПРОС: внешние ссылки — нужен ли им rel="noopener"? А nofollow? #}
+        <li><a href="{{ site.telegram }}" target="_blank">Telegram</a></li>
+        <li><a href="{{ site.vk }}" target="_blank">ВКонтакте</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__bottom">
+    <span>© {% now "Y" %} {{ site.name }} · {{ site.legal_name }}</span>
+    <a href="#main" class="muted">Наверх ↑</a>
+  </div>
+</footer>

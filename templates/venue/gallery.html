@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{# SEO-ЗАДАНИЕ: title/description для галереи. #}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="mono muted">Фото</p>
+    {# SEO-ЗАДАНИЕ: у этой страницы НЕТ h1 вообще — только h2. Исправьте. #}
+    <h2 class="page-head__title">Галерея</h2>
+    <p class="page-head__lead">Так выглядят залы без гостей. Фото с мероприятий — в наших соцсетях.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container gallery">
+    {% for photo in photos %}
+      <figure class="gallery__item">
+        {# ============================================================== #}
+        {# SEO-ЗАДАНИЕ (изображения):                                      #}
+        {#  1. Добавьте alt — описание того, что на фото (не «фото1»!).    #}
+        {#  2. Добавьте width и height (против сдвига макета, CLS).         #}
+        {#  3. Добавьте loading="lazy" для картинок ниже первого экрана.    #}
+        {#  4. Задание со звёздочкой: перейдите на форматы WebP/AVIF и      #}
+        {#     <picture>/srcset для разных размеров экрана.                 #}
+        {#  5. Названия файлов — латиницей и по смыслу (как сейчас) — ок.   #}
+        {# ============================================================== #}
+        <a href="{% static photo.src %}" class="gallery__link" data-lightbox="{{ photo.caption }}">
+          <img src="{% static photo.src %}">
+        </a>
+        <figcaption class="mono">{{ photo.caption }}</figcaption>
+      </figure>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

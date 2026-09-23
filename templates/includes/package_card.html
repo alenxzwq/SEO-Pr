@@ -1,0 +1,9 @@
+<article class="package{% if p.is_featured %} package--featured{% endif %}">
+  {% if p.is_featured %}<span class="package__badge mono">хит</span>{% endif %}
+  <h3 class="package__name">{{ p.name }}</h3>
+  <p class="muted">{{ p.description }}</p>
+  <div class="package__price"><span>{{ p.price_per_person }}</span> ₽/гость</div>
+  <ul class="package__items">
+    {% for item in p.items_list %}<li>{{ item }}</li>{% endfor %}
+  </ul>
+</article>

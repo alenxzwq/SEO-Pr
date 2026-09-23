@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{# SEO-ЗАДАНИЕ: title/description. Какие запросы? «банкетное меню цена на человека», «меню на свадьбу» ... #}
+{# Задание со звёздочкой: разметьте меню через Schema.org Menu / Offer. #}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="mono muted">Кухня и бар</p>
+    <h1 class="page-head__title">Банкетное меню</h1>
+    <p class="page-head__lead">Сеты от шефа на любой бюджет. Итоговое меню собираем вместе с вами на дегустации.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container packages">
+    {% for p in packages %}
+      {% include "includes/package_card.html" with p=p %}
+    {% empty %}
+      <p class="muted">Меню пока пустое — загляните в админку.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if packages %}
+<section class="section section--dark">
+  <div class="container calc" data-calc>
+    <div>
+      <h2 class="section__title">Сколько стоит банкет?</h2>
+      <p class="muted">Выберите сет и количество гостей — посчитаем ориентировочную стоимость. Точную сумму рассчитает менеджер с учётом зала, напитков и декора.</p>
+    </div>
+
+    <div class="calc__box">
+      <div class="calc__packages">
+        {% for p in packages %}
+          <label class="calc__pkg">
+            <input type="radio" name="calc-package" value="{{ p.price_per_person }}" data-name="{{ p.name }}"{% if p.is_featured %} checked{% endif %}>
+            <span><b>{{ p.name }}</b><small class="mono">{{ p.price_per_person }} ₽ / гость</small></span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <label class="calc__guests">
+        <span class="field__label mono">Гостей: <b data-calc-guests-out>50</b></span>
+        <input type="range" min="10" max="350" step="5" value="50" data-calc-guests>
+      </label>
+
+      <label class="calc__drinks">
+        <input type="checkbox" data-calc-drinks value="1500">
+        <span>Пакет напитков <small class="mono muted">+1 500 ₽ / гость</small></span>
+      </label>
+
+      <div class="calc__total">
+        <span class="mono muted">Ориентировочно</span>
+        <output data-calc-total>—</output>
+      </div>
+
+      <a href="{% url 'venue:booking' %}" class="btn btn--neon btn--block" data-calc-link>Оставить заявку с этим расчётом</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section--concrete">
+  <div class="container narrow center">
+    <h2 class="section__title">Бар «Вестибюль»</h2>
+    <p>Авторская коктейльная карта под ваше событие, крафтовое пиво, вина Нового и Старого света. Пакет напитков — от 1 500 ₽ на гостя.</p>
+    <details class="secret">
+      <summary class="mono">🔒 Секретный код бара</summary>
+      <p class="secret__code">«{{ site.bar_secret }}»</p>
+      <p class="muted">Назовите фразу бармену и получите скидку {{ site.bar_discount }}% на бар.</p>
+    </details>
+    <a href="{% url 'venue:booking' %}" class="btn btn--neon">Обсудить меню</a>
+  </div>
+</section>
+{% endblock %}

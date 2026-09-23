@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{# SEO-ЗАДАНИЕ: title и description для страницы списка залов. #}
+{# Пример title: «Залы для банкета в стиле лофт на 30–350 гостей | Подземка» #}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <p class="mono muted">Схема линий</p>
+    <h1 class="page-head__title">Залы</h1>
+    {# SEO-ПОДСКАЗКА: h1 «Залы» слишком общий. Добавьте ключ: «Банкетные залы в стиле лофт». #}
+    <p class="page-head__lead">Четыре зала: от камерного «Тоннеля» на 30 гостей до всей площадки на 350.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container halls-grid">
+    {% for hall in halls %}
+      <article class="hall-card" style="--c: {{ hall.line_color }}">
+        <a href="{{ hall.get_absolute_url }}" class="hall-card__img">
+          {# SEO-ЗАДАНИЕ: alt="" у картинки зала. Напишите осмысленный alt: #}
+          {# например: «Банкетный зал {{ hall.name }} в стиле лофт» #}
+          <img src="{% static hall.image %}" alt="">
+          <span class="hall-card__line mono">Линия {{ hall.line_number }}</span>
+        </a>
+        <div class="hall-card__body">
+          <h2 class="hall-card__name"><a href="{{ hall.get_absolute_url }}">{{ hall.name }}</a></h2>
+          <p class="muted">{{ hall.short_description }}</p>
+          <ul class="specs mono">
+            <li><b>{{ hall.capacity_banquet }}</b> банкет</li>
+            <li><b>{{ hall.capacity_buffet }}</b> фуршет</li>
+            <li><b>{{ hall.area }}</b> м²</li>
+            <li>от <b>{{ hall.price_from }}</b> ₽</li>
+          </ul>
+          {# SEO-ЗАДАНИЕ (анкоры): «Смотреть» → «Смотреть зал {{ hall.name }}» #}
+          <a href="{{ hall.get_absolute_url }}" class="link-arrow">Смотреть →</a>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

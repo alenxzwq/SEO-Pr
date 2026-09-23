@@ -1,0 +1,36 @@
+{% load static %}
+{% if promo %}
+<section class="promo" id="promo">
+  <div class="container promo__inner">
+    <div class="promo__photo">
+      {# ================================================================ #}
+      {# SEO-ЗАДАНИЕ (тяжёлая картинка): это фото весит ~1 МБ и имеет   #}
+      {# размер 2560×1706, а показывается максимум ~600px в ширину.       #}
+      {#  1. Уменьшите и сожмите его (WebP/AVIF, цель — до 100 КБ).        #}
+      {#  2. Добавьте alt, width, height и loading="lazy".                #}
+      {#  3. Посмотрите, как изменится оценка в Lighthouse до/после.      #}
+      {# Исходный файл в корне репозитория назывался                      #}
+      {# «jZtXzb4tLohZu9NJ....jpg» — почему такое имя плохо для SEO?      #}
+      {# ================================================================ #}
+      <img src="{% static promo.host_photo %}">
+      <span class="promo__badge">−{{ promo.discount }}%</span>
+    </div>
+
+    <div class="promo__text">
+      <p class="mono promo__kicker">Акция до {{ promo.until_human }}</p>
+      {# SEO-ВОПРОС: какой уровень заголовка здесь уместен и почему не h1? #}
+      <h2 class="section__title">{{ promo.title }}</h2>
+      <p class="promo__lead">Забронируйте зал на выпускной до&nbsp;{{ promo.until_human }} и&nbsp;получите <b>скидку {{ promo.discount }}% на&nbsp;тамаду</b>.</p>
+      <div class="promo__host">
+        <span class="mono muted">Ведущий вечера</span>
+        <strong>{{ promo.host_name }}</strong>
+      </div>
+      <p class="muted promo__note">* Скидка действует только на нашего тамаду — {{ promo.host_name }}а. Акция распространяется на бронирования, оформленные до {{ promo.until_human }} включительно.</p>
+      <div class="promo__actions">
+        <a href="{% url 'venue:booking' %}" class="btn btn--neon">Забронировать выпускной</a>
+        <span class="promo__timer mono" data-countdown="{{ promo.until }}"></span>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{# ================================================================== #}
+{# SEO-ЗАДАНИЕ: динамические мета-теги.                                #}
+{# Title и description должны генерироваться из данных зала, например: #}
+{#   {% block title %}Зал «{{ hall.name }}» — банкет до {{ hall.capacity_banquet }} гостей | Подземка{% endblock %} #}
+{# Description можно собрать из hall.short_description + вместимость + цена. #}
+{# Для og:image используйте картинку зала (абсолютный URL!).           #}
+{# ================================================================== #}
+
+{% block breadcrumbs %}
+  {# SEO-ПОДСКАЗКА: заготовка крошек. Добавьте разметку BreadcrumbList (JSON-LD или microdata). #}
+  <nav class="container breadcrumbs mono" aria-label="Хлебные крошки">
+    <a href="{% url 'venue:home' %}">Главная</a> <span>/</span>
+    <a href="{% url 'venue:hall_list' %}">Залы</a> <span>/</span>
+    <span>{{ hall.name }}</span>
+  </nav>
+{% endblock %}
+
+{% block content %}
+<section class="hall-hero" style="--c: {{ hall.line_color }}">
+  <div class="container hall-hero__inner">
+    <div>
+      <p class="hall-hero__line mono"><span class="dot" style="--c: {{ hall.line_color }}"></span>Линия {{ hall.line_number }} · станция</p>
+      <h1 class="hall-hero__title" style="--chars: {{ hall.name|length }}">{{ hall.name }}</h1>
+      <p class="hall-hero__lead">{{ hall.short_description }}</p>
+      <ul class="specs specs--big mono">
+        <li><b>{{ hall.capacity_banquet }}</b>банкет</li>
+        <li><b>{{ hall.capacity_buffet }}</b>фуршет</li>
+        <li><b>{{ hall.area }}</b>м²</li>
+        <li><b>{{ hall.price_from }}</b>₽ / гость</li>
+      </ul>
+    </div>
+    <div class="hall-hero__img">
+      {# SEO-ЗАДАНИЕ: alt, width, height. Первая картинка на экране — lazy не нужен (почему?). #}
+      <img src="{% static hall.image %}">
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container hall-body">
+    <div class="hall-body__text">
+      <h2>Про зал</h2>
+      {{ hall.description|linebreaks }}
+
+      {% if hall.features_list %}
+        <h2>Что есть в зале</h2>
+        <ul class="features">
+          {% for f in hall.features_list %}<li>{{ f }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <aside class="hall-body__aside">
+      <div class="sticky">
+        <p class="mono muted">Забронировать «{{ hall.name }}»</p>
+        {% include "includes/booking_form.html" %}
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% if others %}
+<section class="section section--concrete">
+  <div class="container">
+    {# SEO-ПОДСКАЗКА: перелинковка между залами — это хорошо для внутреннего SEO. #}
+    <h2 class="section__title">Другие станции</h2>
+    <div class="metro-map metro-map--compact">
+      {% for o in others %}
+        <a href="{{ o.get_absolute_url }}" class="station" style="--c: {{ o.line_color }}">
+          <span class="station__line mono">{{ o.line_number }}</span>
+          <span class="station__dot"></span>
+          <span class="station__body">
+            <span class="station__name">{{ o.name }}</span>
+            <span class="station__meta mono">до {{ o.capacity_banquet }} гостей · от {{ o.price_from }} ₽</span>
+          </span>
+          <span class="station__arrow">→</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
