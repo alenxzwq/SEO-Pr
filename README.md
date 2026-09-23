@@ -18,7 +18,7 @@
 
 - Python 3.10+
 - Django 5.2+
-- SQLite (файл `db.sqlite3` создаётся автоматически)
+- SQLite: база `db.sqlite3` лежит в репозитории и уже заполнена
 - Никакого фронтенд-сборщика: чистые HTML, CSS и JS
 
 ---
@@ -57,22 +57,30 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Создайте базу данных
+### 4. База данных
+
+База `db.sqlite3` уже лежит в репозитории: в ней залы, меню, афиша, отзывы, FAQ
+и учётка администратора. Создавать и заполнять её не нужно.
+
+Когда будете добавлять поля в модели (например, `slug`), создайте и примените миграции:
 
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 5. Заполните сайт демо-контентом (залы, меню, отзывы, FAQ)
+**Если база сломалась**, её можно собрать заново:
 
 ```bash
-python manage.py seed_demo
+python manage.py seed_demo --flush
 ```
-> Чтобы удалить контент и заполнить заново: `python manage.py seed_demo --flush`
+Эта команда удалит и заново заполнит контент (залы, меню, афишу, отзывы, FAQ).
+Если сломано всё совсем, удалите файл `db.sqlite3` и выполните
+`python manage.py migrate`, а затем `python manage.py seed_demo`.
 
-### 6. Вход в админку
+### 5. Вход в админку
 
-Команда `seed_demo` из шага 5 уже создала учебного администратора:
+В базе уже есть учебный администратор:
 
 | Логин | Пароль |
 |---|---|
@@ -82,7 +90,7 @@ python manage.py seed_demo
 > пароль недопустим: он опубликован в открытом репозитории. Свой администратор
 > создаётся командой `python manage.py createsuperuser`.
 
-### 7. Запустите сервер
+### 6. Запустите сервер
 
 ```bash
 python manage.py runserver
@@ -124,9 +132,10 @@ DJANGO_DEBUG=0 python manage.py runserver --insecure
 |---|---|
 | `python` не найден | Попробуйте `py` (Windows) или `python3` (macOS/Linux) |
 | `No module named django` | Не активировано виртуальное окружение (шаг 2) |
-| `no such table` | Не выполнили `migrate` (шаг 4) |
-| Сайт пустой, нет залов | Не выполнили `seed_demo` (шаг 5) |
-| Не пускает в админку | Не выполнили `seed_demo` (шаг 5) — он создаёт админа |
+| `no such table` | `python manage.py migrate` (шаг 4) |
+| Сайт пустой, нет залов | База пустая или удалена: `python manage.py seed_demo` (шаг 4) |
+| Не пускает в админку | Если поменяли пароль и забыли: `python manage.py changepassword admin` |
+| `no such column` | Добавили поле в модель, но не сделали `makemigrations` и `migrate` |
 | Порт 8000 занят | `python manage.py runserver 8080` |
 
 ---

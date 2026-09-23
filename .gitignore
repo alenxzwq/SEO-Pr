@@ -6,7 +6,6 @@ venv/
 env/
 
 # Django
-db.sqlite3
 staticfiles/
 media/
 .env
