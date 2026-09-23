@@ -1,13 +1,19 @@
+# Python
 __pycache__/
 *.pyc
 .venv/
 venv/
 env/
+
+# Django
 db.sqlite3
 staticfiles/
 media/
 .env
-.idea/
-.vscode/
 *.log
+
+# Редакторы и ИИ-ассистенты
+.vscode/
+*.code-workspace
+.idea/
 .claude/
