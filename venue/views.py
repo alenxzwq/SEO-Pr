@@ -2,14 +2,11 @@ import datetime
 
 from django.contrib import messages
 from django.db.models import Avg, Q
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import BookingForm
 from .models import FAQ, EventFormat, Hall, MenuPackage, Poster, Review
-
-# ПОДСКАЗКА (общая): мета-теги удобно формировать во view и передавать в шаблон,
-# например: context["meta_title"] = f"{hall.name} — зал до {hall.capacity_banquet} гостей | Подземка"
-# А в base.html выводить {{ meta_title|default:"..." }}. Либо переопределять блоки в шаблонах.
 
 
 def home(request):
@@ -34,8 +31,21 @@ def hall_list(request):
     })
 
 
-def hall_detail(request, pk):
-    hall = get_object_or_404(Hall, pk=pk, is_active=True)
+def hall_detail(request, slug):
+    """
+    Страница зала. Коммерческая — должна быть в индексе.
+
+    SEO-ЗАДАНИЕ (301-редирект): если пришёл старый URL /halls/1/,
+    делаем постоянный редирект на новый /halls/depo/.
+    """
+    hall = Hall.objects.filter(slug=slug, is_active=True).first()
+
+    if hall is None:
+        if slug.isdigit():
+            hall = get_object_or_404(Hall, pk=int(slug), is_active=True)
+            return redirect("venue:hall_detail", slug=hall.slug, permanent=True)
+        raise Http404("Зал не найден")
+
     others = Hall.objects.filter(is_active=True).exclude(pk=hall.pk)
     form = BookingForm(initial={"hall": hall})
     return render(request, "venue/hall_detail.html", {
@@ -58,10 +68,25 @@ def poster_list(request):
     })
 
 
-def poster_detail(request, pk):
-    # SEO-ВОПРОС: что делать со страницей события, когда оно уже прошло?
-    # Отдавать 404? 410? Оставить в архиве с пометкой «событие прошло»?
-    poster = get_object_or_404(Poster, pk=pk, is_published=True)
+def poster_detail(request, slug):
+    """
+    Страница события афиши.
+
+    SEO-ЗАДАНИЕ (301-редирект): старые URL /afisha/1/ → /afisha/kviz-60-sekund/.
+
+    SEO-ВОПРОС: что делать со страницей события, когда оно уже прошло?
+    Ответ: оставить в архиве с пометкой «событие прошло» + предложить
+    похожие будущие события. 404 или 410 — плохо, потому что теряется
+    накопленный ссылочный вес и пользователи по старым ссылкам видят ошибку.
+    """
+    poster = Poster.objects.filter(slug=slug, is_published=True).first()
+
+    if poster is None:
+        if slug.isdigit():
+            poster = get_object_or_404(Poster, pk=int(slug), is_published=True)
+            return redirect("venue:poster_detail", slug=poster.slug, permanent=True)
+        raise Http404("Событие не найдено")
+
     return render(request, "venue/poster_detail.html", {
         "poster": poster,
         "is_past": not poster.schedule and poster.date < datetime.date.today(),
@@ -82,7 +107,10 @@ def events(request):
 
 
 def gallery(request):
-    # Фото галереи пока лежат в static/img. ПОДСКАЗКА: у картинок нет alt — проверьте шаблон!
+    """
+    SEO-ПОДСКАЗКА: у картинок нет alt — обязательно пропишите в шаблоне
+    gallery.html: alt="{{ photo.caption }}".
+    """
     photos = [
         {"src": "img/hall-depo.jpg", "caption": "Зал «Депо»"},
         {"src": "img/hall-tonnel.webp", "caption": "Зал «Тоннель»"},
@@ -97,8 +125,12 @@ def contacts(request):
 
 
 def booking(request):
-    # SEO-ВОПРОС: нужна ли эта страница в поисковой выдаче? Если нет — как её закрыть?
-    # (meta robots noindex? Disallow в robots.txt? В чём разница?)
+    """
+    SEO-ВОПРОС: нужна ли эта страница в поисковой выдаче?
+    Ответ: нет, служебная. Закрываем через <meta name="robots" content="noindex, follow">
+    в шаблоне booking.html. Disallow в robots.txt хуже — робот не зайдёт и не
+    прочитает noindex, страница может попасть в индекс через внешние ссылки.
+    """
     if request.method == "POST":
         form = BookingForm(request.POST)
         if form.is_valid():
@@ -112,3 +144,16 @@ def booking(request):
             "guests": request.GET.get("guests"),
         })
     return render(request, "venue/booking.html", {"form": form})
+
+
+def robots_txt(request):
+    """Отдаёт robots.txt с автоматически подставленным доменом."""
+    sitemap_url = request.build_absolute_uri("/sitemap.xml")
+    content = f"""User-agent: *
+Disallow: /admin/
+Disallow: /home/
+Allow: /
+
+Sitemap: {sitemap_url}
+"""
+    return HttpResponse(content, content_type="text/plain")
