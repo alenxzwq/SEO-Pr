@@ -1,15 +1,20 @@
 {% extends "base.html" %}
 
-{# SEO-ЗАДАНИЕ: служебная страница с формой. Решите, нужна ли она в индексе.  #}
-{# Если нет — закройте через <meta name="robots" content="noindex, follow">.    #}
-{# Почему в этом случае лучше noindex, а не Disallow в robots.txt?             #}
+{# SEO-ЗАДАНИЕ: служебная страница с формой. Закрываем от индексации. #}
+{% block robots %}<meta name="robots" content="noindex, follow">{% endblock %}
+
+{% block title %}Бронирование банкетного зала — «Подземка» в Чите{% endblock %}
+
+{% block description %}Оставьте заявку на бронирование банкетного зала «Подземка» в Чите. Перезвоним в течение 15 минут, подберём зал и меню, проведём экскурсию.{% endblock %}
 
 {% block content %}
 <section class="page-head">
   <div class="container">
     <p class="mono muted">Билет в один конец</p>
-    <h1 class="page-head__title">Бронирование</h1>
-    <p class="page-head__lead">Расскажите о мероприятии — подберём зал, меню и проведём экскурсию по площадке.</p>
+    <h1 class="page-head__title">Бронирование зала в «Подземке»</h1>
+    <p class="page-head__lead">
+      Расскажите о мероприятии — подберём зал, меню и проведём экскурсию по площадке.
+    </p>
   </div>
 </section>
 

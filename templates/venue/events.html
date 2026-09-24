@@ -1,15 +1,25 @@
 {% extends "base.html" %}
 
-{# SEO-ЗАДАНИЕ: сейчас все форматы (свадьбы, корпоративы...) на ОДНОЙ странице. #}
-{# Задание со звёздочкой: под каждый формат лучше иметь отдельную посадочную     #}
-{# страницу (/events/svadby/, /events/korporativy/) со своим h1, текстом и title. #}
-{# Почему это важно для продвижения по запросам «зал для свадьбы в стиле лофт»?  #}
+{# SEO-ЗАДАНИЕ: title/description. #}
+{% block title %}Форматы мероприятий в «Подземке» — свадьбы, корпоративы, дни рождения{% endblock %}
+{% block description %}Проводим свадьбы, корпоративы, дни рождения и концерты в банкетных залах «Подземки» в Чите. От 20 до 350 гостей. Своя кухня, бар, звук.{% endblock %}
+
+{% block og_title %}Форматы мероприятий в «Подземке» — от свадьбы до концерта{% endblock %}
+{% block og_description %}Свадьбы, корпоративы, выпускные, дни рождения и концерты. 4 зала, своя кухня и бар.{% endblock %}
+
+{% block breadcrumbs %}
+  <nav class="container breadcrumbs mono" aria-label="Хлебные крошки">
+    <a href="{% url 'venue:home' %}">Главная</a> <span>/</span>
+    <span>Банкетное меню</span>
+  </nav>
+{% endblock %}
 
 {% block content %}
 <section class="page-head">
   <div class="container">
     <p class="mono muted">Форматы</p>
-    <h1 class="page-head__title">Мероприятия</h1>
+    {# SEO-ЗАДАНИЕ: h1 с ключом #}
+    <h1 class="page-head__title">Мероприятия в банкетных залах «Подземки»</h1>
     <p class="page-head__lead">Проводим события любого масштаба — от ужина на 20 человек до концерта на 350.</p>
   </div>
 </section>
@@ -21,7 +31,10 @@
         <h2>{{ f.title }}</h2>
         <div>
           <p>{{ f.description }}</p>
-          <a href="{% url 'venue:booking' %}" class="link-arrow">Рассчитать стоимость →</a>
+          {# SEO-ЗАДАНИЕ: информативный анкор #}
+          <a href="{% url 'venue:booking' %}" class="link-arrow">
+            Рассчитать стоимость {{ f.title|lower }} →
+          </a>
         </div>
       </article>
     {% endfor %}
@@ -32,7 +45,7 @@
 
 <section class="section section--concrete">
   <div class="container">
-    <h2 class="section__title">Где проводить</h2>
+    <h2 class="section__title">Где проводить мероприятие</h2>
     <div class="metro-map metro-map--compact">
       {% for hall in halls %}
         <a href="{{ hall.get_absolute_url }}" class="station" style="--c: {{ hall.line_color }}">

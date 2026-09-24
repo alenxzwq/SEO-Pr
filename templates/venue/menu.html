@@ -1,13 +1,83 @@
 {% extends "base.html" %}
 
-{# SEO-ЗАДАНИЕ: title/description. Какие запросы? «банкетное меню цена на человека», «меню на свадьбу» ... #}
-{# Задание со звёздочкой: разметьте меню через Schema.org Menu / Offer. #}
+{# SEO-ЗАДАНИЕ: title/description с ключами про меню и цены. #}
+{% block title %}Банкетное меню «Подземки» — цена на человека от {{ packages.0.price_per_person|default:'1800' }} ₽{% endblock %}
+{% block description %}Банкетное меню для свадьбы, корпоратива и дня рождения в «Подземке». Сеты от шефа на любой бюджет. Дегустация и подбор меню вместе с вами.{% endblock %}
+
+{% block og_title %}Банкетное меню — сеты от шефа{% endblock %}
+{% block og_description %}Сеты от шефа на любой бюджет. Меню на свадьбу, корпоратив, день рождения. Дегустация при заказе.{% endblock %}
+
+{# SEO-ЗАДАНИЕ (микроразметка): Schema.org Menu / Offer + BreadcrumbList #}
+{% block extra_head %}
+{% if packages %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Menu",
+  "name": "Банкетное меню «Подземка»",
+  "inLanguage": "ru-RU",
+  "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'venue:menu' %}",
+  "hasMenuSection": [
+    {
+      "@type": "MenuSection",
+      "name": "Банкетные сеты",
+      "hasMenuItem": [
+        {% for p in packages %}
+        {
+          "@type": "MenuItem",
+          "name": "{{ p.name|escapejs }}",
+          "description": "{{ p.description|escapejs }}",
+          "offers": {
+            "@type": "Offer",
+            "price": "{{ p.price_per_person }}",
+            "priceCurrency": "RUB",
+            "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'venue:menu' %}"
+          }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+  ]
+}
+</script>
+{% endif %}
+
+{# BreadcrumbList JSON-LD #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Главная",
+      "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'venue:home' %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Банкетное меню",
+      "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'venue:menu' %}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+  <nav class="container breadcrumbs mono" aria-label="Хлебные крошки">
+    <a href="{% url 'venue:home' %}">Главная</a> <span>/</span>
+    <span>Банкетное меню</span>
+  </nav>
+{% endblock %}
 
 {% block content %}
 <section class="page-head">
   <div class="container">
     <p class="mono muted">Кухня и бар</p>
-    <h1 class="page-head__title">Банкетное меню</h1>
+    <h1 class="page-head__title">Банкетное меню «Подземки» — цены на человека</h1>
     <p class="page-head__lead">Сеты от шефа на любой бюджет. Итоговое меню собираем вместе с вами на дегустации.</p>
   </div>
 </section>
@@ -26,7 +96,7 @@
 <section class="section section--dark">
   <div class="container calc" data-calc>
     <div>
-      <h2 class="section__title">Сколько стоит банкет?</h2>
+      <h2 class="section__title">Сколько стоит банкет в «Подземке»?</h2>
       <p class="muted">Выберите сет и количество гостей — посчитаем ориентировочную стоимость. Точную сумму рассчитает менеджер с учётом зала, напитков и декора.</p>
     </div>
 
@@ -55,7 +125,9 @@
         <output data-calc-total>—</output>
       </div>
 
-      <a href="{% url 'venue:booking' %}" class="btn btn--neon btn--block" data-calc-link>Оставить заявку с этим расчётом</a>
+      <a href="{% url 'venue:booking' %}" class="btn btn--neon btn--block" data-calc-link>
+        Оставить заявку с этим расчётом →
+      </a>
     </div>
   </div>
 </section>
@@ -70,7 +142,9 @@
       <p class="secret__code">«{{ site.bar_secret }}»</p>
       <p class="muted">Назовите фразу бармену и получите скидку {{ site.bar_discount }}% на бар.</p>
     </details>
-    <a href="{% url 'venue:booking' %}" class="btn btn--neon">Обсудить меню</a>
+    <a href="{% url 'venue:booking' %}" class="btn btn--neon">
+      Обсудить меню с менеджером →
+    </a>
   </div>
 </section>
 {% endblock %}

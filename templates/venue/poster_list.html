@@ -1,13 +1,49 @@
 {% extends "base.html" %}
 
-{# SEO-ЗАДАНИЕ: title/description. Например: «Афиша событий в Чите: квизы и вечеринки в лофте | Подземка» #}
+{# SEO-ЗАДАНИЕ: title/description для афиши. #}
+{% block title %}Афиша событий в Чите — квизы, вечеринки и концерты в лофте «Подземка»{% endblock %}
+{% block description %}Актуальная афиша «Подземки»: квизы, вечеринки, концерты и другие события в стиле лофт в Чите. Смотрите даты, бронируйте стол онлайн.{% endblock %}
+
+{% block og_title %}Афиша событий в «Подземке» — квизы и вечеринки в Чите{% endblock %}
+{% block og_description %}Актуальные события: квизы, вечеринки, концерты. Бронируйте стол заранее.{% endblock %}
+
+{# BreadcrumbList JSON-LD #}
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Главная",
+      "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'venue:home' %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Афиша",
+      "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'venue:poster_list' %}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <nav class="container breadcrumbs mono" aria-label="Хлебные крошки">
+    <a href="{% url 'venue:home' %}">Главная</a> <span>/</span>
+    <span>Афиша</span>
+  </nav>
+{% endblock %}
 
 {% block content %}
 <section class="page-head">
   <div class="container">
     <p class="mono muted">События</p>
-    <h1 class="page-head__title">Афиша</h1>
-    <p class="page-head__lead">Квизы, вечеринки и концерты в Подземке. Приходите сами и зовите друзей.</p>
+    <h1 class="page-head__title">Афиша событий в «Подземке» — Чита</h1>
+    <p class="page-head__lead">Квизы, вечеринки и концерты в лофте. Приходите сами и зовите друзей.</p>
   </div>
 </section>
 
@@ -15,11 +51,38 @@
   <div class="container">
     {% if posters %}
       <div class="posters">
-        {% for p in posters %}{% include "includes/poster_card.html" %}{% endfor %}
+        {% for p in posters %}
+          {% include "includes/poster_card.html" %}
+        {% endfor %}
       </div>
     {% else %}
-      {# SEO-ВОПРОС: пустая страница без контента — «тонкий» контент. Что сюда добавить? #}
-      <p class="muted">Скоро здесь появятся новые события. Следите за нами в соцсетях!</p>
+      {# SEO-ОТВЕТ: пустая страница — «тонкий» контент. Решение — добавить полезные блоки: #}
+      {#  1. Пояснение, какие события бывают (типы, форматы).                        #}
+      {#  2. Ссылки на прошлые события или архив.                                    #}
+      {#  3. CTA: «Оставьте телефон — сообщим о новых событиях».                     #}
+      {#  4. Ссылки на соцсети с реальными анонсами.                                #}
+      {#  5. Возможно — блок с FAQ про мероприятия.                                 #}
+      <div class="empty-state">
+        <h2 class="section__title">Скоро появятся новые события</h2>
+        <p>А пока — расскажем, какие события у нас бывают:</p>
+        <ul class="features">
+          <li>🎤 Квизы и интеллектуальные игры</li>
+          <li>🎧 Вечеринки и DJ-сеты</li>
+          <li>🎸 Живые концерты</li>
+          <li>🍷 Дегустации и винные вечера</li>
+          <li>🎬 Кинопоказы</li>
+        </ul>
+        <p>Хотите узнать о новом событии первыми? Подпишитесь на наши соцсети:</p>
+        <p>
+          <a href="{{ site.telegram }}" target="_blank" rel="noopener" class="btn btn--ghost">Telegram</a>
+          <a href="{{ site.vk }}" target="_blank" rel="noopener" class="btn btn--ghost">ВКонтакте</a>
+        </p>
+        <p>
+          <a href="{% url 'venue:booking' %}" class="link-arrow">
+            Забронировать зал под своё событие →
+          </a>
+        </p>
+      </div>
     {% endif %}
   </div>
 </section>

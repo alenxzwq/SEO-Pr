@@ -1,18 +1,42 @@
 {% load static %}
 <article class="poster-card">
   {% if p.schedule %}
-    <span class="date-badge date-badge--regular"><b>{% if p.time %}{{ p.time|time:"H:i" }}{% else %}∞{% endif %}</b><span>{{ p.schedule }}</span></span>
+    <span class="date-badge date-badge--regular">
+      <b>{% if p.time %}{{ p.time|time:"H:i" }}{% else %}∞{% endif %}</b>
+      <span>{{ p.schedule }}</span>
+    </span>
   {% else %}
-    <span class="date-badge"><b>{{ p.date|date:"d" }}</b><span>{{ p.date|date:"b" }}</span></span>
+    <span class="date-badge">
+      <b>{{ p.date|date:"d" }}</b>
+      <span>{{ p.date|date:"b" }}</span>
+    </span>
   {% endif %}
-  <a href="{{ p.get_absolute_url }}" class="poster-card__img">
-    {# SEO-ЗАДАНИЕ: alt, width/height, loading="lazy" #}
-    {% if p.image %}<img src="{% static p.image %}">{% endif %}
+
+  <a href="{{ p.get_absolute_url }}" class="poster-card__img" aria-hidden="true" tabindex="-1">
+    {# SEO-ЗАДАНИЕ: alt, width, height, loading="lazy" #}
+    {% if p.image %}
+      <img src="{% static p.image %}"
+           alt="{{ p.title }}{% if p.topic %} — {{ p.topic }}{% endif %} в «Подземке» {{ p.date|date:'j E' }}"
+           width="400"
+           height="300"
+           loading="lazy">
+    {% endif %}
   </a>
+
   <div class="poster-card__body">
-    {% if p.topic %}<p class="mono poster-card__topic">Тема: {{ p.topic }}</p>{% endif %}
-    <h3 class="poster-card__title"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h3>
+    {% if p.topic %}
+      <p class="mono poster-card__topic">Тема: {{ p.topic }}</p>
+    {% endif %}
+
+    <h3 class="poster-card__title">
+      <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+    </h3>
+
     <p class="muted">{{ p.short_description }}</p>
-    <a href="{{ p.get_absolute_url }}" class="link-arrow">Подробнее →</a>
+
+    {# SEO-ЗАДАНИЕ: информативный анкор вместо «Подробнее» #}
+    <a href="{{ p.get_absolute_url }}" class="link-arrow">
+      Квиз «{{ p.title }}» — {{ p.date|date:"j E" }} →
+    </a>
   </div>
 </article>

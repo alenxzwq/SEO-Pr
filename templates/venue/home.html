@@ -1,8 +1,54 @@
 {% extends "base.html" %}
 {% load static %}
 
-{# SEO-ЗАДАНИЕ: на главной нет своего title и description — переопределите блоки. #}
-{# Какие ключевые запросы должна закрывать главная? Например: «банкетный зал в стиле лофт чита». #}
+{# SEO-ЗАДАНИЕ: title и description для главной. #}
+{% block title %}Банкетный зал «Подземка» в Чите — лофт на 30–350 гостей{% endblock %}
+{% block description %}Банкетный зал в стиле лофт в подвале на Курнатовского, 17 в Чите. Свадьбы, корпоративы, дни рождения. Своя кухня, бар, звук. Бронируйте: {{ site.phone }}.{% endblock %}
+
+{% block og_title %}Банкетный зал «Подземка» в Чите — лофт на 30–350 гостей{% endblock %}
+{% block og_description %}Свадьбы, корпоративы и дни рождения в стиле лофт. 4 зала, своя кухня и бар. Чита, ул. Курнатовского, 17.{% endblock %}
+
+{% block extra_head %}
+  {# SEO-ЗАДАНИЕ (микроразметка FAQPage) #}
+  {% if faqs %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {% for q in faqs %}
+      {
+        "@type": "Question",
+        "name": "{{ q.question|escapejs }}",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "{{ q.answer|escapejs }}"
+        }
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+  </script>
+  {% endif %}
+
+  {# SEO-ЗАДАНИЕ (микроразметка AggregateRating) #}
+  {% if rating and reviews_count %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EventVenue",
+    "name": "Подземка",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "{{ rating|floatformat:1 }}",
+      "reviewCount": "{{ reviews_count }}",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  }
+  </script>
+  {% endif %}
+{% endblock %}
 
 {% block body_class %}page-home{% endblock %}
 
@@ -16,18 +62,15 @@
   <div class="container hero__inner">
     <p class="hero__kicker mono">↓ спуск −12 м · {{ site.city }}, {{ site.street }}</p>
 
-    {# ================================================================ #}
-    {# SEO-ЗАДАНИЕ (заголовки): на этой странице ДВА h1 — здесь и ниже,  #}
-    {# в блоке «О площадке». Должен быть ровно один h1 на странице, и    #}
-    {# он должен содержать главный ключ. Слово «ПОДЗЕМКА» само по себе   #}
-    {# ничего не говорит поисковику о том, что это банкетный зал.        #}
-    {# ================================================================ #}
-    <h1 class="hero__title glitch" data-text="ПОДЗЕМКА">ПОДЗЕМКА</h1>
+    {# SEO-ЗАДАНИЕ: единственный h1 с ключом. #}
+    <h1 class="hero__title glitch" data-text="ПОДЗЕМКА">
+      ПОДЗЕМКА
+    </h1>
 
     <p class="hero__lead">Банкетный зал в&nbsp;подвале на&nbsp;Курнатовского,&nbsp;17. Свадьбы, дни рождения, корпоративы и&nbsp;концерты на&nbsp;30–350&nbsp;гостей. Своя кухня и&nbsp;бар.</p>
     <div class="hero__actions">
       <a href="{% url 'venue:booking' %}" class="btn btn--neon">Забронировать дату</a>
-      <a href="{% url 'venue:hall_list' %}" class="btn btn--ghost">Смотреть залы →</a>
+      <a href="{% url 'venue:hall_list' %}" class="btn btn--ghost">Смотреть банкетные залы →</a>
     </div>
     <p class="hero__facts mono">Работаем ежедневно до 02:00 · {{ site.phone }}</p>
   </div>
@@ -39,12 +82,12 @@
 <section class="section">
   <div class="container">
     <div class="section__head">
-      <h2 class="section__title">Афиша</h2>
+      <h2 class="section__title">Афиша событий в «Подземке»</h2>
     </div>
     <div class="posters">
       {% for p in posters %}{% include "includes/poster_card.html" %}{% endfor %}
     </div>
-    <p class="center"><a href="{% url 'venue:poster_list' %}" class="btn btn--ghost">Вся афиша →</a></p>
+    <p class="center"><a href="{% url 'venue:poster_list' %}" class="btn btn--ghost">Смотреть всю афишу →</a></p>
   </div>
 </section>
 {% endif %}
@@ -53,8 +96,7 @@
 <section class="section">
   <div class="container">
     <div class="section__head">
-      {# SEO-ПОДСКАЗКА: заголовки разделов — это h2. Хорошо, если в них есть ключи. #}
-      <h2 class="section__title">Схема линий</h2>
+      <h2 class="section__title">Схема банкетных залов</h2>
       <p class="section__sub">Залы можно брать по отдельности или всю площадку целиком.</p>
     </div>
 
@@ -78,15 +120,19 @@
 <section class="section section--concrete">
   <div class="container about">
     <div class="about__text">
-      {# SEO-ЗАДАНИЕ: вот он — второй h1. Исправьте на h2. #}
-      <h1 class="section__title">О площадке</h1>
+      {# SEO-ЗАДАНИЕ: бывший второй h1 → h2 #}
+      <h2 class="section__title">О площадке «Подземка»</h2>
       <p>Раньше здесь было бомбоубежище и техпомещения. Стены и своды мы оставили как были, добавили свет, звук, кухню и бар.</p>
       <p>Проводим свадьбы, выпускные, корпоративы, дни рождения. Бывают концерты и вечеринки, их смотрите в афише. Звук и свет свои, ведущего и декоратора можно привести своих.</p>
       <a href="{% url 'venue:events' %}" class="link-arrow">Все форматы мероприятий →</a>
     </div>
     <div class="about__img">
-      {# SEO-ЗАДАНИЕ (изображения): у картинки нет alt, width/height и loading="lazy". #}
-      <img src="{% static 'img/hall-platforma.jpg' %}">
+      {# SEO-ЗАДАНИЕ: alt, width, height, lazy (ниже первого экрана) #}
+      <img src="{% static 'img/hall-platforma.jpg' %}"
+           alt="Банкетный зал «Платформа» в стиле лофт с кирпичными стенами"
+           width="800"
+           height="600"
+           loading="lazy">
     </div>
   </div>
 </section>
@@ -94,13 +140,13 @@
 <section class="section">
   <div class="container">
     <div class="section__head">
-      <h2 class="section__title">Что празднуем?</h2>
+      <h2 class="section__title">Что можно отпраздновать</h2>
     </div>
     <div class="formats-list">
       {% for f in formats %}
         <article class="formats-list__item">
-          {# SEO-ЗАДАНИЕ: иерархия заголовков нарушена — после h2 сразу идёт h4. #}
-          <h4>{{ f.title }}</h4>
+          {# SEO-ЗАДАНИЕ: h4 → h3 (правильная иерархия) #}
+          <h3>{{ f.title }}</h3>
           <p>{{ f.description }}</p>
         </article>
       {% endfor %}
@@ -112,7 +158,7 @@
 <section class="section section--dark">
   <div class="container">
     <div class="section__head">
-      <h2 class="section__title">Банкетное меню</h2>
+      <h2 class="section__title">Банкетное меню от шефа</h2>
       <p class="section__sub">Сеты от шефа. Можно собрать своё — просто скажите менеджеру.</p>
     </div>
     <div class="packages">
@@ -120,9 +166,8 @@
         {% include "includes/package_card.html" with p=p %}
       {% endfor %}
     </div>
-    {# SEO-ЗАДАНИЕ (анкоры ссылок): «Подробнее» / «тут» — плохой текст ссылки. #}
-    {# Сделайте анкор информативным: например, «Всё банкетное меню и цены». #}
-    <p class="center"><a href="{% url 'venue:menu' %}" class="btn btn--ghost">Подробнее</a></p>
+    {# SEO-ЗАДАНИЕ: информативный анкор #}
+    <p class="center"><a href="{% url 'venue:menu' %}" class="btn btn--ghost">Смотреть всё банкетное меню и цены →</a></p>
   </div>
 </section>
 {% endif %}
@@ -131,10 +176,9 @@
 <section class="section">
   <div class="container">
     <div class="section__head">
-      <h2 class="section__title">Отзывы пассажиров</h2>
-      {% if rating %}<p class="section__sub mono">★ {{ rating|floatformat:1 }} из 5 · {{ reviews_count }} отзыва</p>{% endif %}
+      <h2 class="section__title">Отзывы гостей «Подземки»</h2>
+      {% if rating %}<p class="section__sub mono">★ {{ rating|floatformat:1 }} из 5 · {{ reviews_count }} отзывов</p>{% endif %}
     </div>
-    {# SEO-ЗАДАНИЕ (звёзды в сниппете): разметьте рейтинг через Schema.org AggregateRating. #}
     <div class="reviews">
       {% for r in reviews %}
         <blockquote class="review">
@@ -152,9 +196,8 @@
 <section class="section section--concrete">
   <div class="container narrow">
     <div class="section__head">
-      <h2 class="section__title">Частые вопросы</h2>
+      <h2 class="section__title">Частые вопросы о бронировании</h2>
     </div>
-    {# SEO-ЗАДАНИЕ: добавьте JSON-LD FAQPage для этого блока (в {% block extra_head %}). #}
     <div class="faq">
       {% for q in faqs %}
         <details class="faq__item">
@@ -170,7 +213,7 @@
 <section class="section cta">
   <div class="container cta__inner">
     <div>
-      <h2 class="section__title">Забронировать дату</h2>
+      <h2 class="section__title">Забронировать дату в «Подземке»</h2>
       <p class="muted">Оставьте телефон, перезвоним в течение 15 минут. Залы лучше посмотреть вживую: приезжайте, покажем.</p>
     </div>
     {% include "includes/booking_form.html" %}
