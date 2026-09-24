@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Страница не найдена — 404 | Подземка{% endblock %}
+
+{% block robots %}<meta name="robots" content="noindex, follow">{% endblock %}
+
+{% block description %}Страница не найдена. Вернитесь на главную или посмотрите наши залы, афишу и меню.{% endblock %}
+
+{% block content %}
+<section class="section section--tight">
+  <div class="container narrow center">
+    <p class="mono muted" style="font-size: 4rem; margin: 0;">404</p>
+    <h1 class="section__title">Страница не найдена</h1>
+    <p class="page-head__lead">
+      Похоже, вы свернули не на ту линию метро. Такой страницы у нас нет.
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
+      <a href="{% url 'venue:home' %}" class="btn btn--neon">На главную</a>
+      <a href="{% url 'venue:hall_list' %}" class="btn btn--ghost">Смотреть залы</a>
+      <a href="{% url 'venue:poster_list' %}" class="btn btn--ghost">Афиша</a>
+      <a href="{% url 'venue:booking' %}" class="btn btn--ghost">Забронировать</a>
+    </div>
+
+    <p class="muted">
+      Или позвоните нам: <a href="tel:{{ site.phone_raw }}">{{ site.phone }}</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
