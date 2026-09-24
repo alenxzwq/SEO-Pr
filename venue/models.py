@@ -7,15 +7,11 @@ class Hall(models.Model):
 
     name = models.CharField("Название", max_length=100)
 
-    # SEO-ЗАДАНИЕ (ЧПУ — человекопонятные URL):
-    # Сейчас залы открываются по адресу /halls/1/, /halls/2/ ... — это плохо для SEO.
-    # ПОДСКАЗКА: добавьте поле
-    #     slug = models.SlugField("URL", max_length=120, unique=True)
-    # затем: makemigrations -> migrate, заполните slug в админке (или через
-    # prepopulated_fields в admin.py), поменяйте маршрут в venue/urls.py на <slug:slug>
-    # и get_absolute_url() ниже. Хорошие адреса: /halls/depo/, /halls/tonnel/
-    # Будьте внимательны: unique=True на заполненной таблице требует миграции в 2 шага
-    # (или временно null=True / default) — разберитесь, как это сделать.
+    slug = models.SlugField(
+        "URL", max_length=120, unique=True,
+        null=True, blank=True,
+        help_text="Человекопонятный URL, например 'depo'"
+    )
 
     line_color = models.CharField(
         "Цвет линии (HEX)", max_length=7, default="#e4312b",
@@ -36,12 +32,21 @@ class Hall(models.Model):
         "Картинка (путь в static)", max_length=200, default="img/hall-depo.jpg",
     )
 
-    # SEO-ЗАДАНИЕ (управляемые мета-теги):
-    # ПОДСКАЗКА: хорошая практика — дать контент-менеджеру возможность задать
-    # title и description для каждой страницы вручную:
-    #     meta_title = models.CharField(max_length=70, blank=True)
-    #     meta_description = models.CharField(max_length=160, blank=True)
-    # а в шаблоне выводить их, если заполнены, иначе — сгенерированные.
+    meta_title = models.CharField(
+        "SEO Title", max_length=70, blank=True,
+        help_text="Если пусто — сгенерируется автоматически"
+    )
+    meta_description = models.CharField(
+        "SEO Description", max_length=160, blank=True,
+        help_text="Если пусто — сгенерируется автоматически"
+    )
+
+    updated_at = models.DateTimeField(
+        "Обновлено",
+        auto_now=True,
+        help_text="Автоматически обновляется при сохранении"
+    )
+    
 
     order = models.PositiveSmallIntegerField("Порядок", default=0)
     is_active = models.BooleanField("Показывать на сайте", default=True)
@@ -55,8 +60,7 @@ class Hall(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        # ПОДСКАЗКА: после добавления slug замените pk=self.pk на slug=self.slug
-        return reverse("venue:hall_detail", kwargs={"pk": self.pk})
+        return reverse("venue:hall_detail", kwargs={"slug": self.slug})
 
     def features_list(self):
         return [f.strip() for f in self.features.splitlines() if f.strip()]
@@ -109,9 +113,6 @@ class Review(models.Model):
     created_at = models.DateField("Дата")
     is_published = models.BooleanField("Опубликован", default=True)
 
-    # ПОДСКАЗКА: отзывы с оценками — отличный повод для микроразметки
-    # Schema.org AggregateRating / Review (звёздочки в сниппете).
-
     class Meta:
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
@@ -125,8 +126,6 @@ class FAQ(models.Model):
     question = models.CharField("Вопрос", max_length=255)
     answer = models.TextField("Ответ")
     order = models.PositiveSmallIntegerField("Порядок", default=0)
-
-    # ПОДСКАЗКА: вопросы-ответы можно разметить через Schema.org FAQPage (JSON-LD).
 
     class Meta:
         verbose_name = "Вопрос-ответ"
@@ -174,6 +173,13 @@ class Poster(models.Model):
     """Событие в афише: квиз, концерт, вечеринка — с конкретной датой."""
 
     title = models.CharField("Название", max_length=150)
+
+    slug = models.SlugField(
+        "URL", max_length=160, unique=True,
+        null=True, blank=True,
+        help_text="Человекопонятный URL, например 'kviz-60-sekund'"
+    )
+
     topic = models.CharField("Тема", max_length=150, blank=True)
     organizer = models.CharField("Организатор", max_length=150, blank=True)
     date = models.DateField("Дата", help_text="Для регулярного события — дата первого проведения")
@@ -187,13 +193,6 @@ class Poster(models.Model):
     image = models.CharField("Картинка (путь в static)", max_length=200, blank=True)
     is_published = models.BooleanField("Опубликовано", default=True)
 
-    # SEO-ЗАДАНИЕ (ЧПУ): как и у залов, адрес события сейчас /afisha/1/.
-    # Хороший адрес: /afisha/kviz-60-sekund-kompyuternye-igry/ — добавьте slug.
-    # ПОДСКАЗКА: у события в афише есть всё для Schema.org Event:
-    # name, startDate, location (Place + PostalAddress), image, organizer, description.
-    # Такая разметка может дать расширенный сниппет с датой в выдаче.
-    # Для регулярных событий (schedule) в Schema.org есть eventSchedule (тип Schedule).
-
     class Meta:
         verbose_name = "Событие афиши"
         verbose_name_plural = "Афиша"
@@ -203,4 +202,4 @@ class Poster(models.Model):
         return f"{self.title} ({self.date:%d.%m.%Y})"
 
     def get_absolute_url(self):
-        return reverse("venue:poster_detail", kwargs={"pk": self.pk})
+        return reverse("venue:poster_detail", kwargs={"slug": self.slug})
