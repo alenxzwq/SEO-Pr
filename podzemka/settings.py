@@ -1,16 +1,10 @@
-"""
-Настройки проекта «Подземка» — банкетный зал в стиле лофт / андеграунд.
 
-Учебный проект по SEO. Ищите по проекту комментарии с пометкой «SEO-ЗАДАНИЕ»
-и «ПОДСКАЗКА» — это места, которые вам предстоит доработать (см. README.md).
-"""
 
 import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Для учебного проекта ключ по умолчанию — ок. В бою — только из переменной окружения!
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "dev-only-podzemka-secret-key-change-me-in-production-0123456789",
@@ -18,7 +12,11 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "wrench-chaplain-module.ngrok-free.dev",
+]
 
 
 INSTALLED_APPS = [
@@ -28,10 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # SEO-ЗАДАНИЕ (карта сайта):
-    # ПОДСКАЗКА: для генерации sitemap.xml в Django есть встроенный фреймворк.
-    # Нужно добавить сюда "django.contrib.sitemaps" (а при желании ещё
-    # "django.contrib.sites" + SITE_ID = 1, чтобы домен брался из БД).
+    "django.contrib.sitemaps",
     "venue",
 ]
 
@@ -43,9 +38,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # ПОДСКАЗКА (задание со звёздочкой): для 301-редиректов со старых URL
-    # можно подключить "django.contrib.redirects.middleware.RedirectFallbackMiddleware"
-    # (плюс приложения django.contrib.sites и django.contrib.redirects).
 ]
 
 ROOT_URLCONF = "podzemka.urls"
@@ -91,22 +83,18 @@ USE_I18N = True
 USE_TZ = True
 
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Данные о заведении — доступны во всех шаблонах как {{ site.name }}, {{ site.phone }} и т.д.
-# ПОДСКАЗКА: эти же данные пригодятся для микроразметки Schema.org (LocalBusiness / EventVenue)
-# и для Open Graph (og:site_name).
 SITE_INFO = {
     "name": "Подземка",
     "tagline": "Банкетный зал в стиле лофт и андеграунд",
-    # ПОДСКАЗКА: юр. лицо — это legalName в микроразметке Organization / LocalBusiness
     "legal_name": "ИП Анисимов Игорь Владимирович",
-    "domain": "podzemka.example",  # SEO-ЗАДАНИЕ: пригодится для абсолютных URL (canonical, og:url)
+    "domain": "podzemka.example", 
     "phone": "+7 (900) 123-45-67",
     "phone_raw": "+79001234567",
     "email": "hello@podzemka.example",
@@ -117,24 +105,19 @@ SITE_INFO = {
     "country": "RU",
     "postal_code": "672027",
     "hours": "Ежедневно, 12:00 — 02:00",
-    # Секретная фраза для бара: назвать бармену и получить скидку
     "bar_secret": "Дайте ходу",
     "bar_discount": 14,
-    # Координаты строками: так они не превратятся в «52,03553» из-за русской локали
     "geo": {"lat": "52.035530", "lon": "113.493054"},
     "map_url": "https://yandex.ru/maps/?pt=113.493054,52.035530&z=17&l=map",
     "telegram": "https://t.me/podzemka_example",
     "vk": "https://vk.com/podzemka_example",
 }
 
-# Акция: выпускной + скидка на тамаду. Блок сам исчезает с сайта после даты окончания
-# (проверка в venue/context_processors.py).
-# ПОДСКАЗКА: акцию можно разметить через Schema.org Offer с полем validThrough.
 PROMO = {
     "title": "Выпускной в Подземке",
     "discount": 30,
     "host_name": "Гай Манукян",
     "host_photo": "img/tamada-gai-manukyan.jpg",
-    "until": "2026-10-01",       # последний день акции (включительно), формат ГГГГ-ММ-ДД
+    "until": "2026-10-01",       
     "until_human": "1 октября",
 }
