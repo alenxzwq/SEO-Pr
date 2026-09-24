@@ -1,51 +1,98 @@
-{% load static %}<!DOCTYPE html>
-{# SEO-ЗАДАНИЕ: язык страницы. Какой атрибут lang должен быть у сайта на русском? #}
-<html>
+{% load static %}<!doctype html>
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  {# ================================================================== #}
-  {# SEO-ЗАДАНИЕ (title): сейчас у ВСЕХ страниц одинаковый заголовок.     #}
-  {# ПОДСКАЗКА: каждый шаблон-наследник должен переопределять блок title. #}
-  {# Шаблон хорошего title: «Главный ключ — уточнение | Подземка»,        #}
-  {# длина ~50-65 символов, уникален для каждой страницы.                 #}
-  {# ================================================================== #}
-  <title>{% block title %}Подземка{% endblock %}</title>
+  {# SEO-ЗАДАНИЕ (title) #}
+  <title>{% block title %}Подземка — бронирование столиков{% endblock %}</title>
 
-  {# SEO-ЗАДАНИЕ (description): мета-описания нет вообще.                 #}
-  {# ПОДСКАЗКА: <meta name="description" content="...">, 120-160 символов, #}
-  {# уникально для каждой страницы. Заведите блок {% block description %}. #}
+  {# SEO-ЗАДАНИЕ (description) #}
+  <meta name="description" content="{% block description %}Забронируйте столик в ресторане «Подземка». Уютная атмосфера, вкусная кухня и незабываемые вечера. Ждем вас!{% endblock %}">
 
-  {# SEO-ЗАДАНИЕ (canonical): добавьте <link rel="canonical" href="...">  #}
-  {# ПОДСКАЗКА: абсолютный URL можно получить через                         #}
-  {# {{ request.scheme }}://{{ request.get_host }}{{ request.path }}        #}
+  {# SEO-ЗАДАНИЕ (canonical) #}
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
 
-  {# SEO-ЗАДАНИЕ (Open Graph / Twitter Cards): при отправке ссылки в       #}
-  {# Telegram/VK сейчас нет красивого превью. Нужны og:title, og:description,#}
-  {# og:image (абсолютный URL, 1200×630), og:url, og:type, og:site_name,   #}
-  {# og:locale, а также twitter:card.                                       #}
+  {# SEO-ЗАДАНИЕ (robots) #}
+  {% block robots %}{% endblock %}
 
-  {# SEO-ЗАДАНИЕ (robots): как запретить индексацию отдельной страницы?     #}
-  {# ПОДСКАЗКА: заведите {% block robots %}{% endblock %} и переопределите  #}
-  {# его на служебных страницах: <meta name="robots" content="noindex, follow"> #}
+  {# SEO-ЗАДАНИЕ (Open Graph / Twitter Cards) #}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Подземка">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:title" content="{% block og_title %}Подземка — бронирование столиков{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Забронируйте столик в ресторане «Подземка». Уютная атмосфера, вкусная кухня и незабываемые вечера.{% endblock %}">
 
-  {# SEO-ЗАДАНИЕ (favicon): у сайта нет иконки. Нужны favicon.ico / .svg,  #}
-  {# apple-touch-icon и (по желанию) site.webmanifest + theme-color.        #}
+  {# Картинка для соцсетей. По умолчанию — hall-depo.jpg. Переопределяется на странице зала. #}
+  {% block og_image %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/hall-depo.jpg' %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/hall-depo.jpg' %}">
+  {% endblock %}
 
-  {# SEO-ЗАДАНИЕ (верификация): сюда же добавляются мета-теги подтверждения #}
-  {# прав в Яндекс.Вебмастере и Google Search Console.                     #}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}Подземка — бронирование столиков{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}Забронируйте столик в ресторане «Подземка». Уютная атмосфера, вкусная кухня и незабываемые вечера.{% endblock %}">
 
-  {# ПОДСКАЗКА (скорость): preconnect к Google Fonts уже есть — это хорошо. #}
+  {# SEO-ЗАДАНИЕ (favicon) #}
+  <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any">
+  <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+  <meta name="theme-color" content="#1a1a1a">
+
+  {# SEO-ЗАДАНИЕ (верификация) #}
+  <meta name="yandex-verification" content="c6df1ab4c75f2e76" />
+  <meta name="google-site-verification" content="TRJFRWBsTHYNhh4Tc2LZzwnnWPwjs6iZtaNo8iKVgLw" />
+
+  {# ПОДСКАЗКА (скорость): preconnect к Google Fonts #}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-  {# SEO-ЗАДАНИЕ (микроразметка): сюда удобно положить JSON-LD Schema.org   #}
-  {# для организации (EventVenue / LocalBusiness): название, адрес, телефон,#}
-  {# часы работы, координаты, ссылки на соцсети (sameAs).                    #}
-  {# Данные уже есть в шаблоне: {{ site.name }}, {{ site.address }} и т.д.   #}
+  {# SEO-ЗАДАНИЕ (микроразметка): JSON-LD Schema.org для организации #}
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EventVenue",
+  "name": "{{ site.name }}",
+  "legalName": "{{ site.legal_name }}",
+  "description": "{{ site.tagline }}",
+  "url": "{{ request.scheme }}://{{ request.get_host }}/",
+  "telephone": "{{ site.phone_raw }}",
+  "email": "{{ site.email }}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{ site.street }}",
+    "addressLocality": "{{ site.city }}",
+    "addressRegion": "{{ site.region }}",
+    "postalCode": "{{ site.postal_code }}",
+    "addressCountry": "{{ site.country }}"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "{{ site.geo.lat }}",
+    "longitude": "{{ site.geo.lon }}"
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "opens": "12:00",
+      "closes": "02:00"
+    }
+  ],
+  "sameAs": [
+    "{{ site.vk }}",
+    "{{ site.telegram }}"
+  ]
+}
+</script>
+
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -62,9 +109,7 @@
       </div>
     {% endif %}
 
-    {# SEO-ЗАДАНИЕ (хлебные крошки): на внутренних страницах нет навигационной #}
-    {# цепочки «Главная → Залы → Депо». Сделайте блок breadcrumbs и разметьте  #}
-    {# его через Schema.org BreadcrumbList.                                    #}
+    {# SEO-ЗАДАНИЕ (хлебные крошки) #}
     {% block breadcrumbs %}{% endblock %}
 
     {% block content %}{% endblock %}
@@ -75,6 +120,19 @@
   <script src="{% static 'js/main.js' %}"></script>
   {% block extra_js %}{% endblock %}
 
-  {# SEO-ЗАДАНИЕ (аналитика): подключите Яндекс.Метрику (с целью на отправку формы) #}
+  {# SEO-ЗАДАНИЕ (аналитика): Яндекс.Метрика #}
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+      (function(m,e,t,r,i,k,a){
+          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112996403', 'ym');
+
+      ym(112996403, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/112996403" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 </body>
 </html>
