@@ -1,18 +1,24 @@
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.log
+staticfiles/
+
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Virtualenv
 .venv/
 venv/
-env/
 
-# Django
-staticfiles/
-media/
-.env
-*.log
-
-# Редакторы и ИИ-ассистенты
+# IDE
 .vscode/
-*.code-workspace
 .idea/
-.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
