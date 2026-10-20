@@ -8,6 +8,9 @@
 import os
 from pathlib import Path
 
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Для учебного проекта ключ по умолчанию — ок. В бою — только из переменной окружения!
@@ -18,10 +21,23 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
+# DEVOPS: на сервере (DEBUG=False) ключ из кода использовать нельзя — падаем сразу.
+if not DEBUG and SECRET_KEY.startswith("dev-only"):
+    raise ImproperlyConfigured("Задайте DJANGO_SECRET_KEY в переменных окружения")
+
+
+def env_list(name, default=""):
+    """Читает список из переменной окружения: "a,b,c" -> ["a", "b", "c"]."""
+    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+
+
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 INSTALLED_APPS = [
+    "django_prometheus",  # DEVOPS: должен стоять первым — перехватывает запросы до остальных
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -36,6 +52,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # DEVOPS: метрики Prometheus — первым и последним в цепочке middleware
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -43,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
     # ПОДСКАЗКА (задание со звёздочкой): для 301-редиректов со старых URL
     # можно подключить "django.contrib.redirects.middleware.RedirectFallbackMiddleware"
     # (плюс приложения django.contrib.sites и django.contrib.redirects).
@@ -69,11 +88,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "podzemka.wsgi.application"
 
 
+# DEVOPS: строка подключения берётся из DATABASE_URL.
+# Локально без переменной — остаётся SQLite; в Docker — PostgreSQL.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=60,
+    )
 }
 
 
@@ -95,6 +116,22 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# DEVOPS: Manifest включается переменной, а не всегда.
+# ManifestStaticFilesStorage при DEBUG=False требует выполненного collectstatic,
+# иначе {% static %} падает. Тесты Django всегда идут с DEBUG=False —
+# и python manage.py test сломался бы. В Docker переменная задана в Dockerfile,
+# и collectstatic выполняется при сборке.
+if os.environ.get("DJANGO_STATIC_MANIFEST") == "1":
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"},
+    }
+
+# DEVOPS: аналитика Umami. ID сайта берётся из переменной окружения
+# (заполняется после создания сайта в интерфейсе Umami).
+UMAMI_WEBSITE_ID = os.environ.get("UMAMI_WEBSITE_ID", "")
+UMAMI_SCRIPT_URL = os.environ.get("UMAMI_SCRIPT_URL", "http://localhost:3000/script.js")
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
@@ -106,7 +143,7 @@ SITE_INFO = {
     "tagline": "Банкетный зал в стиле лофт и андеграунд",
     # ПОДСКАЗКА: юр. лицо — это legalName в микроразметке Organization / LocalBusiness
     "legal_name": "ИП Анисимов Игорь Владимирович",
-    "domain": "podzemka.example",  # SEO-ЗАДАНИЕ: пригодится для абсолютных URL (canonical, og:url)
+    "domain": os.environ.get("SITE_DOMAIN", "podzemka.example"),  # SEO-ЗАДАНИЕ: абсолютные URL
     "phone": "+7 (900) 123-45-67",
     "phone_raw": "+79001234567",
     "email": "hello@podzemka.example",

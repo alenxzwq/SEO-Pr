@@ -26,4 +26,7 @@ urlpatterns = [
     path("gallery/", views.gallery, name="gallery"),
     path("contacts/", views.contacts, name="contacts"),
     path("booking/", views.booking, name="booking"),
+
+    # DEVOPS: healthcheck — используется Docker и мониторингом
+    path("healthz/", views.healthz, name="healthz"),
 ]

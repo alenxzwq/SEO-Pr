@@ -1,18 +1,25 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
 .venv/
 venv/
 env/
 
 # Django
+db.sqlite3
+db.sqlite3-journal
 staticfiles/
 media/
 .env
 *.log
 
-# Редакторы и ИИ-ассистенты
+# IDE
 .vscode/
 *.code-workspace
 .idea/
 .claude/
+
+# OS
+.DS_Store
+Thumbs.db

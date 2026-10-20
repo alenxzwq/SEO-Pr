@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.utils import timezone
 
 from .models import BookingRequest
 
@@ -21,11 +22,12 @@ class BookingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["hall"].empty_label = "Пока не выбрал"
         self.fields["event_format"].empty_label = "Другое"
-        # Не даём выбрать прошедшую дату прямо в календаре браузера
-        self.fields["date"].widget.attrs["min"] = datetime.date.today().isoformat()
+        # DEVOPS: timezone.localdate() вместо datetime.date.today() —
+        # иначе в контейнере (UTC) «сегодня» не совпадает с датой по Чите.
+        self.fields["date"].widget.attrs["min"] = timezone.localdate().isoformat()
 
     def clean_date(self):
         date = self.cleaned_data["date"]
-        if date < datetime.date.today():
+        if date < timezone.localdate():
             raise forms.ValidationError("Машину времени пока не завезли — выберите дату в будущем.")
         return date

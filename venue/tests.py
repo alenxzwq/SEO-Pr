@@ -12,11 +12,17 @@ import datetime
 import io
 from unittest import mock
 
+from django.conf import settings
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import BookingRequest, Hall, Poster
+
+
+def aware_utc(*args):
+    """datetime с явным UTC — для подмены django.utils.timezone.now в тестах."""
+    return datetime.datetime(*args, tzinfo=datetime.timezone.utc)
 
 
 class SiteTestCase(TestCase):
@@ -72,12 +78,17 @@ class BookingTest(SiteTestCase):
 
 
 class PromoAndPosterTest(SiteTestCase):
-    def test_promo_hidden_after_deadline(self):
-        with mock.patch("venue.context_processors.datetime") as dt:
-            dt.date.today.return_value = datetime.date(2099, 1, 1)
-            dt.date.fromisoformat = datetime.date.fromisoformat
+    @override_settings(PROMO={**settings.PROMO, "until": "2026-10-01"})
+    def test_promo_deadline_by_chita_time(self):
+        """DEVOPS: граница акции считается по Чите, а не по UTC контейнера."""
+        # 1 октября 20:00 UTC — это уже 2 октября 05:00 по Чите → акция скрыта
+        with mock.patch("django.utils.timezone.now", return_value=aware_utc(2026, 10, 1, 20)):
             response = self.client.get(reverse("venue:home"))
         self.assertIsNone(response.context["promo"])
+        # 1 октября 10:00 UTC (19:00 по Чите) — ещё показывается
+        with mock.patch("django.utils.timezone.now", return_value=aware_utc(2026, 10, 1, 10)):
+            response = self.client.get(reverse("venue:home"))
+        self.assertIsNotNone(response.context["promo"])
 
     def test_past_poster_not_listed_but_regular_is(self):
         past = Poster.objects.create(
